@@ -25,6 +25,7 @@ This tooklit provides several useful Python scripts for processing [stack exchan
 #### Outputs of ```pystack.py```
 
 * Outputs will be saved in corresponding ```.csv``` and ```.pkl```.
+* Analysis/Statistics of the Stack Exchange Site will be saved in file ```pystack_analysis.log```.
 * We will describe the details in each task individually.
 
 ### Process Posts.xml
