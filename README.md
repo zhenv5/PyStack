@@ -13,24 +13,26 @@ This tooklit provides several useful Python scripts for processing [stack exchan
 
 ### Usage
 
-```
-python pystack.py --input dataset/ai/ --task all
-```
+* download your interested Stack Exchange site data (*.stackexchange.com.7z) from [stack exchange data dump](https://archive.org/details/stackexchange), such as ```ai.stackexchange.com.7z```
+* unzip ```ai.stackexchange.com.7z``` to directory: ```dataset/ai```
+* execute: ```python pystack.py --input dataset/ai/ --task all```
 
-* input: file directory which saves Posts.xml, PostLinks.xml, Votes.xml, Badges.xml, and Comments.xml
-* task: can be selected from [Posts, PostLinks, Votes, Badges, Comments, and All], Each task corresponding a python file
+#### Parameters of ```pystack.py```
 
-### Output
+* input: file directory which saves Posts.xml, PostLinks.xml, Votes.xml, Badges.xml, and Comments.xml. In above example, input is ```dataset/ai```
+* task: can be selected from [Posts, PostLinks, Votes, Badges, Comments, and All], Each task corresponding a python file. By default, task is set as ```all```.
+
+#### Outputs of ```pystack.py```
 
 * Outputs will be saved in corresponding ```.csv``` and ```.pkl```.
-We will describe each task individually.
+* We will describe the details in each task individually.
 
 ### Process Posts.xml
 
 #### Usage
 
 ```
-python process_posts.py --input dataset/bitcoin/Posts.xml
+python process_posts.py --input dataset/ai/Posts.xml
 ```
 
 #### Output
@@ -47,7 +49,7 @@ python process_posts.py --input dataset/bitcoin/Posts.xml
 #### Usage 
 
 ```
-python process_postlinks.py --input dataset/bitcoin/PostLinks.xml
+python process_postlinks.py --input dataset/ai/PostLinks.xml
 ```
 
 #### Output
@@ -80,8 +82,6 @@ python process_badges.py --input dataset/ai/Badges.xml
 
 * Badges.csv, columns = ["UserId","BadgeName","BadgeDate"], index = False
 
-
-
 ### Process Comments.xml
 
 #### Usage
@@ -94,6 +94,16 @@ python process_comments.py --input dataset/ai/Comments.xml
 
 * PostId_CommenterId.csv: index = False, columns = ["PostId","UserId","Score"], UserId gave a comment on PostId (Question or Answer(?)). And the number of up-votes he/she get is Score
 * PostId_CommenterId_Text.pkl: d = {"PostId":[],"UserId":[],"Score":[],"Text":[],"CreationDate":[]}
+
+## Questions
+
+### How to unzip a *.7z file
+
+* Install ```p7zip``` if not already installed: ```sudo apt-get install p7zip```
+
+* To install the command line utility ```sudp atp-get install p7zip-full```
+
+* execute command to extract a *.7z file: ```7za x *.7z```
 
 ## Discuss
 
