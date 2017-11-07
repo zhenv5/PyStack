@@ -2,6 +2,12 @@
 
 This tooklit provides several useful Python scripts for processing [stack exchange data dump](https://archive.org/details/stackexchange)
 
+## Requirements
+
+* Python 2.7
+* [pandas](http://pandas.pydata.org/)
+* [xml.etree.ElementTree](https://docs.python.org/2/library/xml.etree.elementtree.html)
+* [cPickle or pickle](https://docs.python.org/3/library/pickle.html)
 
 ## PyStack
 
@@ -14,6 +20,9 @@ python pystack.py --input dataset/ai/ --task all
 * input: file directory which saves Posts.xml, PostLinks.xml, Votes.xml, Badges.xml, and Comments.xml
 * task: can be selected from [Posts, PostLinks, Votes, Badges, Comments, and All], Each task corresponding a python file
 
+### Output
+
+* Outputs will be saved in corresponding ```.csv``` and ```.pkl```.
 We will describe each task individually.
 
 ### Process Posts.xml
