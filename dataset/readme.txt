@@ -1,4 +1,5 @@
-﻿ - Format: 7zipped
+﻿ # Stack Exchange Sites Data Dump Format
+ - Format: 7zipped
  - Files:
    - **badges**.xml
        - UserId, e.g.: "420"
