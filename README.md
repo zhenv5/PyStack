@@ -35,6 +35,12 @@ This tooklit provides several useful Python scripts for processing [stack exchan
 python process_posts.py --input dataset/ai/Posts.xml
 ```
 
+OR
+
+```
+python pystack.py --input dataset/ai/ --task Posts
+```
+
 #### Output
 
 * QuestionId_AskerId.csv
@@ -52,6 +58,12 @@ python process_posts.py --input dataset/ai/Posts.xml
 python process_postlinks.py --input dataset/ai/PostLinks.xml
 ```
 
+OR
+
+```
+python pystack.py --input dataset/ai/ --task PostLinks
+```
+
 #### Output
 
 * PostId_RelatedPostId.csv: PostId -> RelatedPostId if LinkTypeId = 1; PostId is a duplicate of RelatedPostId if LinkTypedId = 3
@@ -66,6 +78,13 @@ python process_postlinks.py --input dataset/ai/PostLinks.xml
 python process_votes.py --input dataset/ai/Votes.xml
 ```
 
+OR
+
+```
+python pystack.py --input dataset/ai/ --task Votes
+```
+
+
 #### Output
 
 * QuestionId_Bounty.csv: columns = ["QuestionId","Bounty"], index = False
@@ -78,6 +97,12 @@ python process_votes.py --input dataset/ai/Votes.xml
 python process_badges.py --input dataset/ai/Badges.xml
 ```
 
+OR
+
+```
+python pystack.py --input dataset/ai/ --task Badges
+```
+
 #### Output
 
 * Badges.csv, columns = ["UserId","BadgeName","BadgeDate"], index = False
@@ -88,6 +113,12 @@ python process_badges.py --input dataset/ai/Badges.xml
 
 ```
 python process_comments.py --input dataset/ai/Comments.xml
+```
+
+OR
+
+```
+python pystack.py --input dataset/ai/ --task Comments
 ```
 
 #### Output
