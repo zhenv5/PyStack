@@ -7,6 +7,7 @@ import os.path
 import pandas as pd
 import argparse
 
+from helper_func import sprint
 
 def duplicte_questions(cate_name):
 	df = pd.read_csv(os.path.join(cate_name,"PostId_RelatedPostId.csv"))
@@ -17,11 +18,11 @@ def duplicte_questions(cate_name):
 		d = pd.DataFrame({"QuestionId":v["PostId"],"RelatedQuestionId":v["RelatedPostId"]})
 		if k == 3:
 			print("Processing duplicate questions...")
-			print("# duplicate questions: %d" % len(d))
+			sprint(cate_name,"pystack_analysis.log","# duplicate questions: %d" % len(d))
 			file_name = "Duplicate_Questions.csv"
 		if k == 1:
 			print("Processing related questions...")
-			print("# related questions: %d" % len(d))
+			sprint(cate_name,"pystack_analysis.log","# related questions: %d" % len(d))
 			file_name = "Related_Questions_Source2Target.csv"
 
 		d.to_csv(os.path.join(cate_name,file_name),index = False, columns = ["QuestionId","RelatedQuestionId"])

@@ -11,12 +11,13 @@ except ImportError:
 import os.path
 import pandas as pd
 import argparse
+from helper_func import sprint
 
 def process_QuestionId_AskerId(output_dir,Questions):
 	output_file = os.path.join(output_dir,"QuestionId_AskerId.csv")
 	df = pd.DataFrame({"QuestionId":Questions["QuestionId"],"AskerId":Questions["OwnerUserId"]})
 	df.to_csv(output_file,index = True, columns = ["QuestionId","AskerId"])
-	print("# question-asker pairs: %d" % len(df))
+	sprint(output_dir,"pystack_analysis.log","# question-asker pairs: %d" % len(df))
 
 def process_QuestionId_AcceptedAnswerId(output_dir,Questions):
 
@@ -29,21 +30,21 @@ def process_QuestionId_AcceptedAnswerId(output_dir,Questions):
 	df = pd.DataFrame({"QuestionId":QuestionId,"AcceptedAnswerId":AcceptedAnswerId})
 	output_file = os.path.join(output_dir,"QuestionId_AcceptedAnswerId.csv")
 	df.to_csv(output_file,index = True, columns = ["QuestionId","AcceptedAnswerId"])
-	print("# question-acceptedAnswer pairs: %d" % len(df))
+	sprint(output_dir,"pystack_analysis.log","# question-acceptedAnswer pairs: %d" % len(df))
 
 def process_AnswerId_QuestionId(output_dir,Answers):
 
 	output_file = os.path.join(output_dir,"AnswerId_QuestionId.csv")
 	df = pd.DataFrame({"QuestionId":Answers["QuestionId"],"AnswerId":Answers["AnswerId"],"Score":Answers["Score"]})
 	df.to_csv(output_file,index = True, columns = ["QuestionId","AnswerId","Score"])
-	print("# question-answer pairs: %d" % len(df))
+	sprint(output_dir,"pystack_analysis.log","# question-answer pairs: %d" % len(df))
 
 def process_AnswerId_AnswererId(output_dir,Answers):
 
 	output_file = os.path.join(output_dir,"AnswerId_AnswererId.csv")
 	df = pd.DataFrame({"AnswerId":Answers["AnswerId"],"AnswererId":Answers["OwnerUserId"]})
 	df.to_csv(output_file,index = True, columns = ["AnswerId","AnswererId"])
-	print("# answer-answerer pairs: %d" % len(df))
+	sprint(output_dir,"pystack_analysis.log","# answer-answerer pairs: %d" % len(df))
 
 def process_question_tags(output_dir,Questions):
 	df = pd.DataFrame({"QuestionId":Questions["QuestionId"],"Tags":Questions["Tags"]})
@@ -53,11 +54,11 @@ def process_question_tags(output_dir,Questions):
 		tags = [tag[1:] for tag in t.split(">") if len(tag) > 0]
 		tags_set += tags
 		question_tags[q] = tags
-	print("-----------------------------")
-	print("# question with tags: %d" % len(question_tags))
-	print("# tags per question: %0.4f" % (sum([len(x) for _,x in question_tags.iteritems()])*1.0/len(question_tags)))
-	print("# unique tags: %d" % len(set(tags_set)))
-	print("-----------------------------")
+	
+	sprint(output_dir,"pystack_analysis.log","# question with tags: %d" % len(question_tags))
+	sprint(output_dir,"pystack_analysis.log","# tags per question: %0.4f" % (sum([len(x) for _,x in question_tags.iteritems()])*1.0/len(question_tags)))
+	sprint(output_dir,"pystack_analysis.log","# unique tags: %d" % len(set(tags_set)))
+	
 	with open(os.path.join(output_dir,"question_tags.pkl"),"wb") as f:
 		pickle.dump(question_tags,f)
 
@@ -83,7 +84,7 @@ def questionid_answererid(cate_name):
 	
 	df = pd.DataFrame({"QuestionId":ques,"AnswerId":answer,"AnswererId":answerer,"Score":score})
 	df.to_csv(os.path.join(cate_name,"QuestionId_AnswererId.csv"),index = True, columns = ["QuestionId","AnswerId","AnswererId","Score"])
-	print("# question-answer-answerer pairs: %d" % len(df))
+	sprint(cate_name,"pystack_analysis.log","# question-answer-answerer pairs: %d" % len(df))
 
 
 def questionid_bestanswererid(cate_name):
@@ -104,7 +105,7 @@ def questionid_bestanswererid(cate_name):
 
 	q_ber_df = pd.DataFrame({"QuestionId":q_l,"AcceptedAnswerId":a_l,"AcceptedAnswererId":aer_l})
 	q_ber_df.to_csv(os.path.join(cate_name,"QuestionId_AcceptedAnswererId.csv"),index = True, columns = ["QuestionId","AcceptedAnswerId","AcceptedAnswererId"])
-	print("# question-bestAnswerer pairs: %d" % len(q_ber_df))
+	sprint(cate_name,"pystack_analysis.log","# question-bestAnswerer pairs: %d" % len(q_ber_df))
 
 def process_common_attributes(Posts,elem):
 	# common attributes between questions and answers

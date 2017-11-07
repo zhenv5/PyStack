@@ -11,7 +11,7 @@ except ImportError:
 import os.path
 import pandas as pd
 import argparse
-
+from helper_func import sprint
 
 def comments_processing(input_file):
 	d = {"PostId":[],"UserId":[],"Score":[],"Text":[],"CreationDate":[]}
@@ -43,7 +43,7 @@ def comments_processing(input_file):
 	df1 = pd.DataFrame(d)
 	df1.to_csv(postid_userid_file,index = False, columns = ["PostId","UserId","Score"])
 	print("output file: %s" % postid_userid_file)
-	print("# PostId-Comment pairs: %d" % len(df1))
+	sprint(file_dir,"pystack_analysis.log","# PostId-Comment pairs: %d" % len(df1))
 	print("output file: %s" % comments_file)
 	with open(comments_file,"wb")  as f:
 		pickle.dump(d,f)

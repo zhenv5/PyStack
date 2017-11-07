@@ -6,7 +6,7 @@ except ImportError:
 import os.path
 import pandas as pd
 import argparse
-
+from helper_func import sprint
 def bounty_processing(input_file):
 	d = {"PostId":[],"BountyAmount":[]}
 	for event,elem in ET.iterparse(input_file):
@@ -38,7 +38,7 @@ def bounty_processing(input_file):
 	df.to_csv(output_file,index = False,columns = ["QuestionId","Bounty"])
 	print("***********************************")
 	print("output file: %s" % output_file)
-	print("# questions having bounty: %d" % len(df))
+	sprint(file_dir,"pystack_analysis.log","# questions having bounty: %d" % len(df))
 	print("***********************************")
 
 if __name__ == "__main__":

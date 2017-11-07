@@ -6,6 +6,7 @@ except ImportError:
 import os.path
 import pandas as pd
 import argparse
+from helper_func import sprint
 
 def badges_processing(file_name):
 	index = []
@@ -35,7 +36,8 @@ def badges_processing(file_name):
 	print("output file: %s" % output_file)
 	df =pd.DataFrame({"UserId":UserId,"BadgeName":BadgeName,"BadgeDate":BadgeDate})
 	df.to_csv(output_file,index = False,columns = ["UserId","BadgeName","BadgeDate"])
-	print("# users having badges: %d" % len(df))
+	sprint(dir_path,"pystack_analysis.log","# users having badges: %d" % len(df))
+	
 
 if __name__ == "__main__":
 	'''
