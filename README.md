@@ -95,3 +95,8 @@ python process_comments.py --input dataset/ai/Comments.xml
 * PostId_CommenterId.csv: index = False, columns = ["PostId","UserId","Score"], UserId gave a comment on PostId (Question or Answer(?)). And the number of up-votes he/she get is Score
 * PostId_CommenterId_Text.pkl: d = {"PostId":[],"UserId":[],"Score":[],"Text":[],"CreationDate":[]}
 
+## Discuss
+
+This code is written for research. It aims to help you start to do your analysi on Stack Exchange Sites without the dirty preprocessing work. 
+
+Feel free to post any questons or comments.
