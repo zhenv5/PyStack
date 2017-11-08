@@ -141,4 +141,4 @@ python pystack.py --input dataset/ai/ --task Comments
 
 This code is written for research. It aims to help you start to do your analysi on Stack Exchange Sites without the dirty preprocessing work. 
 
-Feel free to post any questons or comments.
+Feel free to post any questions or comments.
