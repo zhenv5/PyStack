@@ -62,6 +62,28 @@ def process_question_tags(output_dir,Questions):
 	with open(os.path.join(output_dir,"question_tags.pkl"),"wb") as f:
 		pickle.dump(question_tags,f)
 
+
+def process_question_text(dir_path,Questions):
+	questions_file = os.path.join(dir_path,"Questions.pkl")
+	questions_dict = {}
+	for question,title,body in zip(Questions["QuestionId"],Questions["Title"],Questions["Body"]):
+		questions_dict[question] = [title,body]
+
+	sprint(dir_path,"pystack_analysis.log","# questions with title and body: %d" % len(questions_dict))
+
+	with open(questions_file,"wb") as f:
+		pickle.dump(questions_dict,f)
+
+
+def process_answer_body(dir_path,Answers):
+	answers_file = os.path.join(dir_path,"Answers.pkl")
+	answers_body = dict(zip(Answers["AnswerId"],Answers["Body"]))
+	print answers_body
+	sprint(dir_path,"pystack_analysis.log","# answers with body: %d" % len(answers_body))
+	with open(answers_file,"wb") as f:
+		pickle.dump(answers_body,f)
+
+
 def questionid_answererid(cate_name):
 	questionid_answerid_file = os.path.join(cate_name,"AnswerId_QuestionId.csv")
 	q_answer_df = pd.read_csv(questionid_answerid_file)
@@ -114,12 +136,12 @@ def process_common_attributes(Posts,elem):
 	except Exception as e:
 		#print index,e
 		return False
-	Posts["CreationDate"].append(elem.attrib["CreationDate"])
+	#Posts["CreationDate"].append(elem.attrib["CreationDate"])
 	Posts["Score"].append(int(elem.attrib["Score"]))
 	Posts["Body"].append(elem.attrib["Body"])
-	Posts["CommentCount"].append(int(elem.attrib["CommentCount"]))
+	#Posts["CommentCount"].append(int(elem.attrib["CommentCount"]))
 	Posts["OwnerUserId"].append(owneruserid)
-	Posts["LastEditorUserId"].append(int(elem.attrib["LastEditorUserId"]) if ("LastEditorUserId" in elem.attrib) else None)
+	#Posts["LastEditorUserId"].append(int(elem.attrib["LastEditorUserId"]) if ("LastEditorUserId" in elem.attrib) else None)
 	return True
 
 def process_element(Posts,elem,PostTypeId):
@@ -183,16 +205,9 @@ def posts_processing(file_name):
 	
 	#dir_path = os.path.dirname(file_name)
 	dir_path = os.path.dirname(os.path.abspath(file_name))
-	questions_file = os.path.join(dir_path,"Questions.csv")
-	answers_file = os.path.join(dir_path,"Answers.csv")
-
-	q_df = pd.DataFrame.from_dict(Questions)
-	q_df.to_csv(questions_file,index = True,encoding = "utf-8",columns = ["QuestionId","OwnerUserId","LastEditorUserId",
-				"ViewCount","Score","CommentCount","AnswerCount","CreationDate","Title","Body","Tags"])
-	a_df = pd.DataFrame.from_dict(Answers)
-	a_df.to_csv(answers_file,index = True, encoding = "utf-8",columns = ["AnswerId","QuestionId","OwnerUserId","LastEditorUserId",
-				"Score","CommentCount","CreationDate","Body"])
 	
+	questions_file = os.path.join(dir_path,"Questions.pkl")
+
 	
 	process_QuestionId_AskerId(dir_path,Questions)
 	process_QuestionId_AcceptedAnswerId(dir_path,Questions)
@@ -201,6 +216,8 @@ def posts_processing(file_name):
 	questionid_answererid(dir_path)
 	questionid_bestanswererid(dir_path)
 	process_question_tags(dir_path,Questions)
+	process_answer_body(dir_path,Answers)
+	process_question_text(dir_path,Questions)
 
 if __name__ == "__main__":
 	'''
