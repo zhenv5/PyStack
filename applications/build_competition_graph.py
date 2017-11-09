@@ -86,9 +86,15 @@ def user_bestAnswerer_edges(dir_name):
 	asker_bestAnswerer_edges = []
 	other_bestAnswerer_edges = []
 	for q,bestAnswerer in q_answerer_dict.iteritems():
-		asker_bestAnswerer_edges.append((prefix.join((user_prefix,str(q_asker_dict[q]))),prefix.join((user_prefix,str(bestAnswerer)))))
+		try:
+			asker_bestAnswerer_edges.append((prefix.join((user_prefix,str(q_asker_dict[q]))),prefix.join((user_prefix,str(bestAnswerer)))))
+		except Exception as e:
+			print q,bestAnswerer,"q_asker_dict",e
 		#print q,q_answerers_dict[q],bestAnswerer
-		other_bestAnswerer_edges += [(prefix.join((user_prefix,str(u))),prefix.join((user_prefix,str(bestAnswerer)))) for u in q_answerers_dict[q] if u != bestAnswerer]
+		try:
+			other_bestAnswerer_edges += [(prefix.join((user_prefix,str(u))),prefix.join((user_prefix,str(bestAnswerer)))) for u in q_answerers_dict[q] if u != bestAnswerer]
+		except Exception as e:
+			print q,bestAnswerer,"q_answerers_dict",e
 	sprint(dir_name,"directed_competition_graph_statistics.log","# edges between asker and best answerer: %d" % len(asker_bestAnswerer_edges))
 	sprint(dir_name,"directed_competition_graph_statistics.log","# edges between non-best Answerer and best Answerer: %d" % len(other_bestAnswerer_edges))
 	return asker_bestAnswerer_edges,other_bestAnswerer_edges
