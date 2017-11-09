@@ -29,8 +29,6 @@ def extract_links(file_name,source_node_name,target_node_name,source_node_prefix
 	sprint(file_dir,"directed_competition_graph_statistics.log","# edges between %s and %s: %d" % (source_node_name,target_node_name,len(edges)))
 	return edges
 
-
-
 def tag_question_edges(file_name):
 	edges = []
 	with open(file_name,"rb") as f:
@@ -94,6 +92,7 @@ def user_bestAnswerer_edges(dir_name):
 	sprint(dir_name,"directed_competition_graph_statistics.log","# edges between asker and best answerer: %d" % len(asker_bestAnswerer_edges))
 	sprint(dir_name,"directed_competition_graph_statistics.log","# edges between non-best Answerer and best Answerer: %d" % len(other_bestAnswerer_edges))
 	return asker_bestAnswerer_edges,other_bestAnswerer_edges
+
 def duplicate_questions_edges(file_name):
 	edges = []
 	df = pd.read_csv(file_name)
@@ -166,8 +165,36 @@ def answers_of_same_question_edges(file_name,is_fully_connected = True):
 	print("# edges between answers of the same question: %d, is fully connected: %s" % (len(edges),is_fully_connected))
 	return edges
 
+def graph_nodes_analysis(g):
+	number_nodes = [0,0,0,0]
+	for node in g.nodes_iter():
+		if node.startswith(question_prefix):
+			number_nodes[0] += 1
+		elif node.startswith(user_prefix):
+			number_nodes[1] += 1
+		elif node.startswith(answer_prefix):
+			number_nodes[2] += 1
+		elif node.startswith(tag_prefix):
+			number_nodes[3] += 1
+	return number_nodes
 
-def extract_edges(cate_name = "ai", adding_duplicate = False, adding_Tag2Question = False, using_answer = False, using_non_bestAnswerer = False, is_fully_connected = True):
+def graph_edges_analysis(g):
+	number_edges = [0,0,0]
+	for (u,v) in g.edges_iter():
+		if u[0] == v[0]:
+			number_edges[0] += 1
+		else:
+			if u[0].startswith(question_prefix) and v[0].startswith(user_prefix):
+				number_edges[1] += 1
+			if u[0].startswith(user_prefix) and v[0].startswith(question_prefix):
+				number_edges[2] += 1
+	return number_edges
+
+
+
+
+
+def build_competition_graph(cate_name = "ai", adding_duplicate = False, adding_Tag2Question = False, using_answer = False, using_non_bestAnswerer = False, is_fully_connected = True):
 	u_q_edges = asker_question_edges(os.path.join(cate_name,"QuestionId_AskerId.csv"))
 	g = nx.DiGraph()
 	# asker -> question
@@ -185,22 +212,34 @@ def extract_edges(cate_name = "ai", adding_duplicate = False, adding_Tag2Questio
 		# edges between duplicate questions
 		duplicate_questions_e = duplicate_questions_edges(os.path.join(cate_name,"PostId_RelatedPostId.csv"))
 		g.add_edges_from(duplicate_questions_e)
+
 	if adding_Tag2Question:
 		# tag -> question
 		t_q_edges = tag_question_edges(os.path.join(cate_name,"question_tags.pkl"))
 		g.add_edges_from(t_q_edges)
+
 	if using_answer:
 		# question -> answer, answer -> answerer
 		a_u_edges = answer_answerer_edges(os.path.join(cate_name,"AnswerId_AnswererId.csv"))
 		q_a_edges = question_answer_edges(os.path.join(cate_name,"AnswerId_QuestionId.csv"))
 		a_a_edges = answers_of_same_question_edges(os.path.join(cate_name,"AnswerId_QuestionId.csv"),is_fully_connected = is_fully_connected)
 		g.add_edges_from(q_a_edges + a_u_edges + a_a_edges)
+
 	if using_non_bestAnswerer:
 		# question -> answerer
 		q_u_edges = question_answerer_edges(os.path.join(cate_name,"QuestionId_AnswererId.csv"))
 		g.add_edges_from(q_u_edges)
-	print("Graph Statistics: # nodes: %d, # edges: %d, is directed acyclic graph: %s" % (g.number_of_nodes(),g.number_of_edges(),nx.is_directed_acyclic_graph(g)))
+	
+	sprint(cate_name,"directed_competition_graph_statistics.log","Graph Statistics: # nodes: %d, # edges: %d, is directed acyclic graph: %s" % (g.number_of_nodes(),g.number_of_edges(),nx.is_directed_acyclic_graph(g)))
+	number_nodes = graph_nodes_analysis(g)
+	sprint(cate_name,"directed_competition_graph_statistics.log","In Graph: # question node, # user node, # answer node, # tag node: %s" % number_nodes)
+	number_edges = graph_edges_analysis(g)
+	sprint(cate_name,"directed_competition_graph_statistics.log","In Graph: # (user node, user node), # (question node, bestAnswerer node), # (asker node, question node): %s" % number_edges)
+
+	nx.write_gpickle(g,os.path.join(cate_name,"competition_graph.gpickle"))
+
 	return g
+
 
 import argparse
 if __name__ == "__main__":
@@ -209,5 +248,4 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	print("building directed graph...")
-	g = extract_edges(cate_name = args.input)
-	#nx.write_gpickle(g,os.path.join(args.input,"graph.gpickle"))
+	g = build_competition_graph(cate_name = args.input)

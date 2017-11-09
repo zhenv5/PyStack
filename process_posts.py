@@ -78,7 +78,7 @@ def process_question_text(dir_path,Questions):
 def process_answer_body(dir_path,Answers):
 	answers_file = os.path.join(dir_path,"Answers.pkl")
 	answers_body = dict(zip(Answers["AnswerId"],Answers["Body"]))
-	print answers_body
+
 	sprint(dir_path,"pystack_analysis.log","# answers with body: %d" % len(answers_body))
 	with open(answers_file,"wb") as f:
 		pickle.dump(answers_body,f)
@@ -201,7 +201,8 @@ def posts_processing(file_name):
 				process_element(Answers,elem,PostTypeId = 2)
 				elem.clear()
 			except Exception as e:
-				print("Exception: %s" % e)
+				pass
+				#print("Exception: %s" % e)
 	
 	#dir_path = os.path.dirname(file_name)
 	dir_path = os.path.dirname(os.path.abspath(file_name))
