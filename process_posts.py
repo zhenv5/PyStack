@@ -15,12 +15,11 @@ from helper_func import sprint
 
 def process_QuestionId_AskerId(output_dir,Questions):
 	output_file = os.path.join(output_dir,"QuestionId_AskerId.csv")
-	df = pd.DataFrame({"QuestionId":Questions["QuestionId"],"AskerId":Questions["OwnerUserId"]})
-	df.to_csv(output_file,index = True, columns = ["QuestionId","AskerId"])
+	df = pd.DataFrame({"QuestionId":Questions["QuestionId"],"AskerId":Questions["OwnerUserId"],"CreationDate":Questions["CreationDate"]})
+	df.to_csv(output_file,index = True, columns = ["QuestionId","AskerId","CreationDate"])
 	sprint(output_dir,"pystack_analysis.log","# question-asker pairs: %d" % len(df))
 
 def process_QuestionId_AcceptedAnswerId(output_dir,Questions):
-
 	QuestionId = []
 	AcceptedAnswerId = []
 	for qid,aid in zip(Questions["QuestionId"],Questions["AcceptedAnswerId"]):
@@ -35,8 +34,8 @@ def process_QuestionId_AcceptedAnswerId(output_dir,Questions):
 def process_AnswerId_QuestionId(output_dir,Answers):
 
 	output_file = os.path.join(output_dir,"AnswerId_QuestionId.csv")
-	df = pd.DataFrame({"QuestionId":Answers["QuestionId"],"AnswerId":Answers["AnswerId"],"Score":Answers["Score"]})
-	df.to_csv(output_file,index = True, columns = ["QuestionId","AnswerId","Score"])
+	df = pd.DataFrame({"QuestionId":Answers["QuestionId"],"AnswerId":Answers["AnswerId"],"Score":Answers["Score"],"CreationDate":Answers["CreationDate"]})
+	df.to_csv(output_file,index = True, columns = ["QuestionId","AnswerId","Score","CreationDate"])
 	sprint(output_dir,"pystack_analysis.log","# question-answer pairs: %d" % len(df))
 
 def process_AnswerId_AnswererId(output_dir,Answers):
@@ -136,7 +135,7 @@ def process_common_attributes(Posts,elem):
 	except Exception as e:
 		#print index,e
 		return False
-	#Posts["CreationDate"].append(elem.attrib["CreationDate"])
+	Posts["CreationDate"].append(elem.attrib["CreationDate"])
 	Posts["Score"].append(int(elem.attrib["Score"]))
 	Posts["Body"].append(elem.attrib["Body"])
 	#Posts["CommentCount"].append(int(elem.attrib["CommentCount"]))
