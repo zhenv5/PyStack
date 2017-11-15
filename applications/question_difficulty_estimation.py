@@ -2,7 +2,10 @@ import os.path
 import pandas as pd
 
 from evaluation_metrics import pairwise_accuracy
-
+try:
+	import cPickle as pickle 
+except Exception as e:
+	import pickle
 
 
 def format_creationDate(creationDate):
@@ -60,6 +63,26 @@ def time_best_answer(dir_name):
 
 	return ques_bestanswer_time_dict
 
+def load_dict_from_csv(input_file_name,mapping_file):
+
+	with open(mapping_file,"rb") as f:
+		mapping = pickle.load(f)
+	if input_file_name.endswith("txt"):
+		question_score = pd.read_csv(input_file_name,delim_whitespace = True, header = None)
+		question_score_dict = dict(zip(question_score.iloc[:,0],question_score.iloc[:,1]))
+	elif input_file_name.endswith("pkl"):
+		with open(input_file_name,"rb") as f:
+			question_score_dict = pickle.load(f)
+	original_post_score = {}
+	for q,s in question_score_dict.iteritems():
+		if mapping["i2s"][q].startswith("q"):
+			#print mapping["i2s"][q],int(mapping["i2s"][q][1:])
+			original_post_score[int(mapping["i2s"][q][1:])] =  s
+	#with open(input_file_name[:len(input_file_name)-4]+".pkl","wb") as f:
+	#	pickle.dump(original_post_score,f)
+	#print original_post_score
+	return original_post_score
+
 def question_difficulty_estimation_baseline(dir_name,baseline = "number_of_answers"):
 	question_bounty = pd.read_csv(os.path.join(dir_name,"QuestionId_Bounty.csv"))
 	
@@ -72,6 +95,14 @@ def question_difficulty_estimation_baseline(dir_name,baseline = "number_of_answe
 		ques_score_dict = time_first_answer(dir_name)
 	if baseline == "time_best_answer":
 		ques_score_dict = time_best_answer(dir_name)
+	if baseline == "trueskill":
+		ques_score_dict = load_dict_from_csv(os.path.join(dir_name,"competition_graph_index0_trueskill.txt"),os.path.join(dir_name,"competition_graph_id_mapping.pkl"))
+	if baseline == "socialagony":
+		ques_score_dict = load_dict_from_csv(os.path.join(dir_name,"competition_graph_index0_socialagony.txt"),os.path.join(dir_name,"competition_graph_id_mapping.pkl"))
+	if baseline == "HGE":
+		ques_score_dict = load_dict_from_csv(os.path.join(dir_name,"competition_graph_index0_HGE_ranking.pkl"),os.path.join(dir_name,"competition_graph_id_mapping.pkl"))
+		
+
 	for q,bounty in zip(question_bounty["QuestionId"],question_bounty["Bounty"]):
 		if q in ques_score_dict:
 			bounty_truth.append(bounty)
@@ -81,6 +112,7 @@ def question_difficulty_estimation_baseline(dir_name,baseline = "number_of_answe
 	acc1,acc2 = pairwise_accuracy(bounty_truth,difficulty_prediction)
 
 def question_difficulty_estimation_baselines(dir_name):
+	#baselines = ["socialagony","trueskill","HGE","number_of_answers","time_first_answer","time_best_answer"]
 	baselines = ["number_of_answers","time_first_answer","time_best_answer"]
 	for b in baselines:
 		question_difficulty_estimation_baseline(dir_name,baseline = b)
@@ -88,6 +120,6 @@ def question_difficulty_estimation_baselines(dir_name):
 import argparse
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-i","--input",default= "../dataset/ai", help = "category name")
+	parser.add_argument("-i","--input",default= "../dataset/scifi", help = "category name")
 	args = parser.parse_args()
 	question_difficulty_estimation_baselines(args.input)
