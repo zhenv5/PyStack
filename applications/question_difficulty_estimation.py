@@ -110,10 +110,13 @@ def question_difficulty_estimation_baseline(dir_name,baseline = "number_of_answe
 
 	print("# questions for difficulty evaluation of %s: %d" % (baseline,len(bounty_truth)))
 	acc1,acc2 = pairwise_accuracy(bounty_truth,difficulty_prediction)
+	from evaluation_metrics import correlation 
+	correlation(bounty_truth,difficulty_prediction,metric = "pearsonr")
+	correlation(bounty_truth,difficulty_prediction,metric = "kendalltau")
 
 def question_difficulty_estimation_baselines(dir_name):
-	#baselines = ["socialagony","trueskill","HGE","number_of_answers","time_first_answer","time_best_answer"]
-	baselines = ["number_of_answers","time_first_answer","time_best_answer"]
+	baselines = ["socialagony","trueskill","HGE","number_of_answers","time_first_answer","time_best_answer"]
+	#baselines = ["number_of_answers","time_first_answer","time_best_answer"]
 	for b in baselines:
 		question_difficulty_estimation_baseline(dir_name,baseline = b)
 

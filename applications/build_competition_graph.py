@@ -70,6 +70,25 @@ def question_bestAnswerer_edges(file_name):
 		target_node_prefix = user_prefix
 		)
 
+def asker_answerer_edges(dir_name):
+	q_asker = pd.read_csv(os.path.join(dir_name,"QuestionId_AskerId.csv"))
+	q_asker_dict = dict(zip(q_asker["QuestionId"],q_asker["AskerId"]))	
+	q_answerer = pd.read_csv(os.path.join(dir_name,"QuestionId_AnswererId.csv"))
+	q_answerers_dict = {}
+	for q,u in zip(q_answerer["QuestionId"],q_answerer["AnswererId"]):
+		if q in q_answerers_dict:
+			q_answerers_dict[q].append(u)
+		else:
+			q_answerers_dict[q] = [u]
+	asker_2_answerer_edges = []
+	for q,us in q_answerers_dict.iteritems():
+		try:
+			asker = q_asker_dict[q]
+			asker_2_answerer_edges += [(prefix.join((user_prefix,str(asker))),prefix.join((user_prefix,str(u)))) for u in us]
+		except Exception as e:
+			pass 
+	return asker_2_answerer_edges
+
 def user_bestAnswerer_edges(dir_name):
 	q_asker = pd.read_csv(os.path.join(dir_name,"QuestionId_AskerId.csv"))
 	q_asker_dict = dict(zip(q_asker["QuestionId"],q_asker["AskerId"]))
@@ -200,19 +219,29 @@ def graph_edges_analysis(g):
 
 
 
-def build_competition_graph(cate_name = "ai", adding_duplicate = False, adding_Tag2Question = False, using_answer = False, using_non_bestAnswerer = False, is_fully_connected = True):
-	u_q_edges = asker_question_edges(os.path.join(cate_name,"QuestionId_AskerId.csv"))
-	g = nx.DiGraph()
-	# asker -> question
-	g.add_edges_from(u_q_edges)
-
-	# question -> bestAnswerer
-	q_bu_edges = question_bestAnswerer_edges(os.path.join(cate_name,"QuestionId_AcceptedAnswererId.csv"))
-	g.add_edges_from(q_bu_edges)
+def build_competition_graph(cate_name = "ai", Asker2Question = True, Question2BestAnswerer = True, Asker2BestAnswerer = True, Asker2Answerer = False, adding_duplicate = False, adding_Tag2Question = False, using_answer = False, using_non_bestAnswerer = False, is_fully_connected = True):
 	
-	# asker -> bestAnswerer, non best answerer -> best answerer
-	asker_bestAnswerer_edges,other_bestAnswerer_edges = user_bestAnswerer_edges(cate_name)
-	g.add_edges_from(asker_bestAnswerer_edges + other_bestAnswerer_edges)
+	g = nx.DiGraph()
+
+	if Asker2Question:
+		# asker -> question
+		u_q_edges = asker_question_edges(os.path.join(cate_name,"QuestionId_AskerId.csv"))
+		g.add_edges_from(u_q_edges)
+
+	if Question2BestAnswerer:
+
+		# question -> bestAnswerer
+		q_bu_edges = question_bestAnswerer_edges(os.path.join(cate_name,"QuestionId_AcceptedAnswererId.csv"))
+		g.add_edges_from(q_bu_edges)
+	
+	if Asker2BestAnswerer:
+		# asker -> bestAnswerer, non best answerer -> best answerer
+		asker_bestAnswerer_edges,other_bestAnswerer_edges = user_bestAnswerer_edges(cate_name)
+		g.add_edges_from(asker_bestAnswerer_edges + other_bestAnswerer_edges)
+
+	if Asker2Answerer:
+		asker_2_answerer_edges  = asker_answerer_edges(cate_name)
+		g.add_edges_from(asker_2_answerer_edges)
 
 	if adding_duplicate:
 		# edges between duplicate questions
@@ -246,6 +275,13 @@ def build_competition_graph(cate_name = "ai", adding_duplicate = False, adding_T
 
 	return g
 
+def CQARankGraph(cate_name):
+	print("building CQARank Competition Graph ...")
+	g = build_competition_graph(cate_name = cate_name,Asker2Question = False, Question2BestAnswerer = False, Asker2BestAnswerer = False, Asker2Answerer = True)
+	from TrueSkill import graphbased_trueskill
+	relative_scores = graphbased_trueskill(g)
+	with open(os.path.join(cate_name,"CQARank_User_Expertise_TrueSkill.pkl"),"wb") as f:
+		pickle.dump(relative_scores,f)
 
 import argparse
 if __name__ == "__main__":
@@ -253,5 +289,7 @@ if __name__ == "__main__":
 	parser.add_argument("-i","--input",default= "../dataset/ai", help = "category name")
 	args = parser.parse_args()
 
-	print("building directed graph...")
-	g = build_competition_graph(cate_name = args.input)
+	#print("building directed graph...")
+	#g = build_competition_graph(cate_name = args.input)
+	
+	CQARankGraph(args.input)

@@ -330,6 +330,16 @@ def pairwise_accuracy_2(ground_truth,predicted_score_dict,nodetype = str):
     print("# of correct pairs: %d, # of wrong pairs: %d, accuracy: %0.4f" % (num_correct_pairs,num_wrong_pairs,accu))
     return accu 
 
+def correlation(x1,x2,metric = "kendalltau"):
+    if metric == "pearsonr":
+        from scipy.stats.stats import pearsonr
+        r,p = pearsonr(x1,x2)
+       
+    if metric == "kendalltau":
+        from scipy.stats import kendalltau
+        r,p = kendalltau(x1,x2)
+    print r,p
+    return r,p
 
 def question_difficulty_estimation_evaluation(que_coins_dict,nodes_score_dict):
     
