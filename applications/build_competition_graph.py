@@ -14,12 +14,14 @@ def sprint(dir_name,file_name,line):
 	with open(os.path.join(dir_name,file_name),"a") as f:
 		f.write("%s \n" % line)
 
-def extract_links(file_name,source_node_name,target_node_name,source_node_prefix,target_node_prefix):
+def extract_links(file_name,source_node_name,target_node_name,source_node_prefix,target_node_prefix,exclude_source_nodes_set = None,exclude_target_nodes_set = None):
 	edges = []
 	df = pd.read_csv(file_name)
 	souce_nodes = df[source_node_name]
 	target_nodes = df[target_node_name]
 	for s,t in zip(souce_nodes,target_nodes):
+		if  (exclude_source_nodes_set and s in exclude_source_nodes_set) or (exclude_target_nodes_set and t in exclude_target_nodes_set):
+			continue
 		sid = prefix.join((source_node_prefix,str(s)))
 		tid = prefix.join((target_node_prefix,str(t)))
 		edges.append((sid,tid))
@@ -39,11 +41,11 @@ def tag_question_edges(file_name):
 	return edges
 
 
-def asker_question_edges(file_name):
+def asker_question_edges(file_name,exclude_questions_set = None):
 	# edges are from askers to questions
 	return extract_links(file_name = file_name,source_node_name = "AskerId", \
 		target_node_name = "QuestionId",source_node_prefix = user_prefix, \
-		target_node_prefix = question_prefix)
+		target_node_prefix = question_prefix,exclude_target_nodes_set = exclude_questions_set)
 
 def answer_answerer_edges(file_name):
 	# edges are from answers to users
@@ -64,10 +66,10 @@ def question_answerer_edges(file_name):
 		target_node_prefix = user_prefix
 		)
 
-def question_bestAnswerer_edges(file_name):
+def question_bestAnswerer_edges(file_name,exclude_questions_set = None):
 	return extract_links(file_name = file_name, source_node_name = "QuestionId", \
 		target_node_name = "AcceptedAnswererId", source_node_prefix = question_prefix, \
-		target_node_prefix = user_prefix
+		target_node_prefix = user_prefix,exclude_source_nodes_set = exclude_questions_set
 		)
 
 def asker_answerer_edges(dir_name):
@@ -89,7 +91,8 @@ def asker_answerer_edges(dir_name):
 			pass 
 	return asker_2_answerer_edges
 
-def user_bestAnswerer_edges(dir_name):
+def user_bestAnswerer_edges(dir_name,exclude_questions_set = None):
+	# edges between asker and best answerer, non-best answerer and best answerer
 	q_asker = pd.read_csv(os.path.join(dir_name,"QuestionId_AskerId.csv"))
 	q_asker_dict = dict(zip(q_asker["QuestionId"],q_asker["AskerId"]))
 	q_answerer = pd.read_csv(os.path.join(dir_name,"QuestionId_AcceptedAnswererId.csv"))
@@ -102,9 +105,13 @@ def user_bestAnswerer_edges(dir_name):
 			q_answerers_dict[q].append(u)
 		else:
 			q_answerers_dict[q] = [u]
+	# edges between asker and best Answerer
 	asker_bestAnswerer_edges = []
+	# edges between non-best answerer and best answerer
 	other_bestAnswerer_edges = []
 	for q,bestAnswerer in q_answerer_dict.iteritems():
+		if exclude_questions_set and (q in exclude_questions_set):
+			continue
 		try:
 			asker_bestAnswerer_edges.append((prefix.join((user_prefix,str(q_asker_dict[q]))),prefix.join((user_prefix,str(bestAnswerer)))))
 		except Exception as e:
@@ -190,9 +197,35 @@ def answers_of_same_question_edges(file_name,is_fully_connected = True):
 	print("# edges between answers of the same question: %d, is fully connected: %s" % (len(edges),is_fully_connected))
 	return edges
 
+def EGA(dir_name,exclude_questions_set = None):
+	# leverage EGA (Expertise Gain Assumption) to build edges between questions asked by the same Asker
+	question_asker_file = os.path.join(dir_name,"QuestionId_AskerId.csv")
+	df = pd.read_csv(question_asker_file)
+	edges = []
+
+	asker_ques_dict = {}
+	for a,q in zip(df["AskerId"],df["QuestionId"]):
+		if exclude_questions_set and q in exclude_questions_set:
+			continue
+		if a in asker_ques_dict:
+			asker_ques_dict[a] += [q]
+		else:
+			asker_ques_dict[a] = [q]
+	for k,v in asker_ques_dict.iteritems():
+		sorted_v = sorted(v)
+		if len(sorted_v) >= 2:
+			for i in xrange(len(sorted_v) - 1):
+				e = ("q"+str(sorted_v[i]),"q"+str(sorted_v[i+1]))
+				edges.append(e)
+	return edges
+
+
+
+
+
 def graph_nodes_analysis(g):
 	number_nodes = [0,0,0,0]
-	for node in g.nodes_iter():
+	for node in g.nodes():
 		if node.startswith(question_prefix):
 			number_nodes[0] += 1
 		elif node.startswith(user_prefix):
@@ -205,7 +238,7 @@ def graph_nodes_analysis(g):
 
 def graph_edges_analysis(g):
 	number_edges = [0,0,0]
-	for (u,v) in g.edges_iter():
+	for (u,v) in g.edges():
 		if u[0] == v[0]:
 			number_edges[0] += 1
 		else:
@@ -215,28 +248,23 @@ def graph_edges_analysis(g):
 				number_edges[2] += 1
 	return number_edges
 
-
-
-
-
-def build_competition_graph(cate_name = "ai", Asker2Question = True, Question2BestAnswerer = True, Asker2BestAnswerer = True, Asker2Answerer = False, adding_duplicate = False, adding_Tag2Question = False, using_answer = False, using_non_bestAnswerer = False, is_fully_connected = True):
+def build_competition_graph(cate_name = "ai", exclude_questions_set = None, is_EGA = False, Asker2Question = True, Question2BestAnswerer = True, Asker2BestAnswerer = True, Asker2Answerer = False, adding_duplicate = False, adding_Tag2Question = False, using_answer = False, using_non_bestAnswerer = False, is_fully_connected = True,saved_graph_name = "competition_graph.gpickle"):
 	
 	g = nx.DiGraph()
 
 	if Asker2Question:
 		# asker -> question
-		u_q_edges = asker_question_edges(os.path.join(cate_name,"QuestionId_AskerId.csv"))
+		u_q_edges = asker_question_edges(os.path.join(cate_name,"QuestionId_AskerId.csv"),exclude_questions_set = exclude_questions_set)
 		g.add_edges_from(u_q_edges)
 
 	if Question2BestAnswerer:
-
 		# question -> bestAnswerer
-		q_bu_edges = question_bestAnswerer_edges(os.path.join(cate_name,"QuestionId_AcceptedAnswererId.csv"))
+		q_bu_edges = question_bestAnswerer_edges(os.path.join(cate_name,"QuestionId_AcceptedAnswererId.csv"),exclude_questions_set = exclude_questions_set)
 		g.add_edges_from(q_bu_edges)
 	
 	if Asker2BestAnswerer:
 		# asker -> bestAnswerer, non best answerer -> best answerer
-		asker_bestAnswerer_edges,other_bestAnswerer_edges = user_bestAnswerer_edges(cate_name)
+		asker_bestAnswerer_edges,other_bestAnswerer_edges = user_bestAnswerer_edges(cate_name,exclude_questions_set = exclude_questions_set)
 		g.add_edges_from(asker_bestAnswerer_edges + other_bestAnswerer_edges)
 
 	if Asker2Answerer:
@@ -265,13 +293,16 @@ def build_competition_graph(cate_name = "ai", Asker2Question = True, Question2Be
 		q_u_edges = question_answerer_edges(os.path.join(cate_name,"QuestionId_AnswererId.csv"))
 		g.add_edges_from(q_u_edges)
 	
+	if is_EGA:
+		q_q_edges = EGA(cate_name,exclude_questions_set = exclude_questions_set)
+		g.add_edges_from(q_q_edges)
 	sprint(cate_name,"directed_competition_graph_statistics.log","Graph Statistics: # nodes: %d, # edges: %d, is directed acyclic graph: %s" % (g.number_of_nodes(),g.number_of_edges(),nx.is_directed_acyclic_graph(g)))
 	number_nodes = graph_nodes_analysis(g)
 	sprint(cate_name,"directed_competition_graph_statistics.log","In Graph: # question node, # user node, # answer node, # tag node: %s" % number_nodes)
 	number_edges = graph_edges_analysis(g)
 	sprint(cate_name,"directed_competition_graph_statistics.log","In Graph: # (user node, user node), # (question node, bestAnswerer node), # (asker node, question node): %s" % number_edges)
 
-	nx.write_gpickle(g,os.path.join(cate_name,"competition_graph.gpickle"))
+	nx.write_gpickle(g,os.path.join(cate_name,saved_graph_name))
 
 	return g
 
@@ -283,13 +314,29 @@ def CQARankGraph(cate_name):
 	with open(os.path.join(cate_name,"CQARank_User_Expertise_TrueSkill.pkl"),"wb") as f:
 		pickle.dump(relative_scores,f)
 
+def standardCompetitionGraph(cate_name):
+	print("building standard competition graph...")
+	exclude_questions_oldAskers_file = os.path.join(cate_name,"new_questions_old_askers_ques.pkl")
+	with open(exclude_questions_oldAskers_file,"rb") as f:
+		ques_set = pickle.load(f)
+		print("[read from file] # questions for Test (new questions old askers) : %d" % len(ques_set))
+	g = build_competition_graph(cate_name = cate_name,exclude_questions_set = ques_set,Asker2Question = True, Question2BestAnswerer = True, Asker2BestAnswerer = True, Asker2Answerer = False,saved_graph_name = "competition_graph_exclude_ques_existingAskers.gpickle")
+
+def competitionGraph_w_EGA(cate_name):
+	print("building competition graph with EGA...")
+	exclude_questions_oldAskers_file = os.path.join(cate_name,"new_questions_old_askers_ques.pkl")
+	with open(exclude_questions_oldAskers_file,"rb") as f:
+		ques_set = pickle.load(f)
+		print("[read from file] # questions for Test (new questions old askers) : %d" % len(ques_set))
+	g = build_competition_graph(cate_name = cate_name,exclude_questions_set = ques_set, is_EGA = True, Asker2Question = True, Question2BestAnswerer = True, Asker2BestAnswerer = True, Asker2Answerer = False,saved_graph_name = "competition_graph_exclude_ques_existingAskers_w_EGA.gpickle")
+
 import argparse
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-i","--input",default= "../dataset/ai", help = "category name")
 	args = parser.parse_args()
-
-	#print("building directed graph...")
-	#g = build_competition_graph(cate_name = args.input)
+	cate_name = args.input
 	
-	CQARankGraph(args.input)
+	#CQARankGraph(args.input)
+	#standardCompetitionGraph(cate_name)
+	competitionGraph_w_EGA(cate_name)

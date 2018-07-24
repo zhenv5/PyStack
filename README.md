@@ -142,3 +142,8 @@ python pystack.py --input dataset/ai/ --task Comments
 This code is written for research. It aims to help you start to do your analysi on Stack Exchange Sites without the dirty preprocessing work. 
 
 Feel free to post any questions or comments.
+
+## Citation
+
+If you use this code, please consider to cite [QDEE: Question Difficulty and Expertise Estimation in Community Question Answering Sites](https://github.com/zhenv5/QDEE) and [ColdRoute: effective routing of cold questions in stack exchange sites
+](https://link.springer.com/article/10.1007%2Fs10618-018-0577-7)
