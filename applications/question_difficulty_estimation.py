@@ -1,6 +1,5 @@
 import os.path
 import pandas as pd
-
 from evaluation_metrics import pairwise_accuracy
 try:
 	import cPickle as pickle 
@@ -37,11 +36,13 @@ def time_first_answer(dir_name):
 
 	questionid_answerid = pd.read_csv(os.path.join(dir_name,"AnswerId_QuestionId.csv"))
 	ques_first_answer_time_dict = {}
+
 	for q,t in zip(questionid_answerid["QuestionId"],questionid_answerid["CreationDate"]):
 		if q in ques_first_answer_time_dict:
 			ques_first_answer_time_dict[q] = min(ques_first_answer_time_dict[q],timestaps(ques_creation_dict.get(q,"2000-08-02T15:40:24.820"),t))
 		else:
 			ques_first_answer_time_dict[q] = timestaps(ques_creation_dict.get(q,"2000-08-02T15:40:24.820"),t)
+	
 	return ques_first_answer_time_dict
 
 def time_best_answer(dir_name):

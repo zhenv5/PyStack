@@ -2,12 +2,10 @@ try:
 	import xml.etree.cElementTree as ET
 except ImportError:
 	import xml.etree.ElementTree as ET
-
 try:
 	import cPickle as pickle
 except ImportError:
 	import pickle
-
 import os.path
 import pandas as pd
 import argparse
@@ -53,7 +51,7 @@ if __name__ == "__main__":
 	process */Comments.xml
 	'''
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-i","--input",default= "dataset/ai/Comments.xml", help = "input: */Comments.xml, output: */Comments.csv")
+	parser.add_argument("-i","--input",default= "../dataset/ai/Comments.xml", help = "input: */Comments.xml, output: */Comments.csv")
 	args = parser.parse_args()
 	input_file = args.input
 	print("input file %s " % input_file)
