@@ -140,8 +140,6 @@ def duplicate_questions_edges(file_name):
 	print("# duplicate questions: %d" % (len(edges)/2))
 	return edges
 
-
-
 def extract_edges_from_list(l,is_fully_connected = True):
 	# l, a list,[(answer,score)]
 	score_dict = {}
@@ -172,7 +170,6 @@ def extract_edges_from_list(l,is_fully_connected = True):
 					#print e,sorted_score[i][0],sorted_score[j][0]
 					edges.append(e)
 	return edges
-
 
 def answers_of_same_question_edges(file_name,is_fully_connected = True):
 	df = pd.read_csv(file_name)
@@ -218,10 +215,6 @@ def EGA(dir_name,exclude_questions_set = None):
 				e = ("q"+str(sorted_v[i]),"q"+str(sorted_v[i+1]))
 				edges.append(e)
 	return edges
-
-
-
-
 
 def graph_nodes_analysis(g):
 	number_nodes = [0,0,0,0]

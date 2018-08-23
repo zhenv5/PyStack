@@ -7,7 +7,6 @@ try:
 except Exception as e:
 	import pickle
 
-
 def format_creationDate(creationDate):
 	'''
 	CreationDate="2016-08-02T15:39:14.947"
@@ -22,7 +21,6 @@ def timestaps(creationDate1,creationDate2):
 	y1,mo1,d1,h1,mi1 = format_creationDate(creationDate1)
 	y2,mo2,d2,h2,mi2 = format_creationDate(creationDate2)
 	return (mi2 - mi1)  + (h2 - h1)*60 + (d2-d1)*60*24 + (mo2 - mo1)*60*24*30 + (y2 - y1)*60*24*30*365
-
 
 def number_of_answers(dir_name):
 	# question difficulty is correlated with its number of answers
@@ -102,7 +100,6 @@ def question_difficulty_estimation_baseline(dir_name,baseline = "number_of_answe
 	if baseline == "HGE":
 		ques_score_dict = load_dict_from_csv(os.path.join(dir_name,"competition_graph_index0_HGE_ranking.pkl"),os.path.join(dir_name,"competition_graph_id_mapping.pkl"))
 		
-
 	for q,bounty in zip(question_bounty["QuestionId"],question_bounty["Bounty"]):
 		if q in ques_score_dict:
 			bounty_truth.append(bounty)
