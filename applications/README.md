@@ -11,6 +11,6 @@
 Output:
 
 * ```AskerIndex_AnswererIndex_2018-01-01_interval_by_month_-1.csv```: initial graph,  all interactions (asker -> answerer) generated before ```initial_date``` are used to construct the initial graph
-* ```AskerIndex_AnswererIndex_2018-01-01_interval_by_month_n.csv```: newly added edges between (```initial_date``` + ```interval_by_days``` X (n-1)) and (```initial_date``` + ```interval_by_days``` X n)
+* ```AskerIndex_AnswererIndex_2018-01-01_interval_by_month_n.csv```: newly added edges between (```initial_date``` + ```interval_by_days``` X (n)) and (```initial_date``` + ```interval_by_days``` X (n+1))
 * ```AskerIndex_AnswererIndex_....csv``` format: ```AskerIndex, AnswererIndex``` per row. Node index starts from 0
 
