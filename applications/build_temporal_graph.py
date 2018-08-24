@@ -50,13 +50,29 @@ def make_nodeId_start_from_0(edges_dict):
 	for k,v in new_edges_dict.iteritems():
 		print("date interval index: %d, # edges: %d" % (k, len(v)))
 	return new_edges_dict
+
+
+def filter_new_nodes(edges_dict):
+	from sets import Set 
+	nodes_set = Set()
+	map(lambda (x,y): nodes_set.update(Set([x,y])), edges_dict[-1])
+	print("# nodes in the initial graph: %d" % len(nodes_set))
+	filtered_edges_dict = defaultdict(list)
+	for k,v in edges_dict.iteritems():
+		filtered_edges_dict[k] = [(s,t) for s,t in v if s in nodes_set and t in nodes_set]
+	print("========Filtering nodes========")
+	for k,v in filtered_edges_dict.iteritems():
+		print("date interval index: %d, # edges: %d" % (k, len(v)))
+	return filtered_edges_dict
+
 	
-
-
-
 def build_asker_2_answerer_network(cate_name = "../dataset/android", initial_date = "2018-01-01T15:39:14.947", interval_by_days = 30):
+	original_edges_dict = extract_asker_2_answerer_edges(cate_name = cate_name, initial_date = initial_date, interval_by_days = interval_by_days)
+	# remove new nodes
+	filtered_edges_dict = filter_new_nodes(original_edges_dict)
 	# node index starts from 0
-	edges = make_nodeId_start_from_0(extract_asker_2_answerer_edges(cate_name = cate_name, initial_date = initial_date, interval_by_days = interval_by_days))
+	edges = make_nodeId_start_from_0(filtered_edges_dict)
+	
 	for k,v in edges.iteritems():
 		df = pd.DataFrame({"AskerIndex":[n for n,_ in v], "AnswererIndex":[n for _,n in v]})
 		save_file_name = os.path.join(cate_name,"AskerIndex_AnswererIndex_" + initial_date[:10] + "_interval_by_month_" + str(k) +".csv")
