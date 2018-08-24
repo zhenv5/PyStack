@@ -4,7 +4,7 @@
 
 * Graph nodes: users (asker, answerer), edges: from asker to answerer
 * Usage: ```python build_temporal_graph.py --input ../dataset/ai --initial_date 2018-01-01T15:39:14.947 --interval_by_days 30```
-* ```--input```: input stack exchange site, File ```AskerId_AnswererId.csv``` is required. Make sure to run ```pre_processing/pystack.py``` first
+* ```--input```: input stack exchange site, File ```AskerId_AnswererId.csv``` is required. Make sure to run ```pre_processing/pystack.py``` first ([check how to pre-processing Stack Exchange sites](https://github.com/zhenv5/PyStack/blob/master/README.md))
 * ```--initial_date```: initial date
 * ```--interval_by_days```: interval_by_days to update the initial graph
 

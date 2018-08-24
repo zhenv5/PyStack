@@ -136,9 +136,8 @@ python pystack.py --input ../dataset/ai/ --task Comments
 ### How to unzip a *.7z file
 
 * Install ```p7zip``` if not already installed: ```sudo apt-get install p7zip```
-
 * To install the command line utility ```sudp atp-get install p7zip-full```
-
+* Or [Install p7zip on Mac OSX](http://macappstore.org/p7zip/)
 * execute command to extract a *.7z file: ```7za x *.7z```
 
 ## Discuss
