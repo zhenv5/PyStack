@@ -5,16 +5,7 @@ try:
 	import cPickle as pickle 
 except Exception as e:
 	import pickle
-
-def format_creationDate(creationDate):
-	'''
-	CreationDate="2016-08-02T15:39:14.947"
-	'''
-	dates = creationDate.split("T")[0]
-	times = creationDate.split("T")[1]
-	y,mo,d = dates.split("-")
-	h,mi,_ = times.split(":")
-	return int(y),int(mo),int(d),int(h),int(mi)
+from helper_funs import format_creationDate
 
 def timestaps(creationDate1,creationDate2):
 	y1,mo1,d1,h1,mi1 = format_creationDate(creationDate1)
@@ -113,7 +104,7 @@ def question_difficulty_estimation_baseline(dir_name,baseline = "number_of_answe
 	correlation(bounty_truth,difficulty_prediction,metric = "kendalltau")
 
 def question_difficulty_estimation_baselines(dir_name):
-	baselines = ["socialagony","trueskill","HGE","number_of_answers","time_first_answer","time_best_answer"]
+	baselines = ["number_of_answers","time_first_answer","time_best_answer","socialagony","trueskill","HGE"]
 	#baselines = ["number_of_answers","time_first_answer","time_best_answer"]
 	for b in baselines:
 		question_difficulty_estimation_baseline(dir_name,baseline = b)
@@ -121,6 +112,6 @@ def question_difficulty_estimation_baselines(dir_name):
 import argparse
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-i","--input",default= "../dataset/scifi", help = "category name")
+	parser.add_argument("-i","--input",default= "../dataset/android", help = "category name")
 	args = parser.parse_args()
 	question_difficulty_estimation_baselines(args.input)
