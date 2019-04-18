@@ -230,7 +230,7 @@ def graph_nodes_analysis(g):
 	return number_nodes
 
 def graph_edges_analysis(g):
-	number_edges = [0,0,0]
+	number_edges = [0,0,0,0]
 	for (u,v) in g.edges():
 		if u[0] == v[0]:
 			number_edges[0] += 1
@@ -239,6 +239,8 @@ def graph_edges_analysis(g):
 				number_edges[1] += 1
 			if u[0].startswith(user_prefix) and v[0].startswith(question_prefix):
 				number_edges[2] += 1
+			if u[0].startswith(tag_prefix) and v[0].startswith(question_prefix):
+				number_edges[3] += 1
 	return number_edges
 
 def build_competition_graph(cate_name = "ai", exclude_questions_set = None, is_EGA = False, Asker2Question = True, Question2BestAnswerer = True, Asker2BestAnswerer = True, Asker2Answerer = False, adding_duplicate = False, adding_Tag2Question = False, using_answer = False, using_non_bestAnswerer = False, is_fully_connected = True,saved_graph_name = "competition_graph.gpickle"):
@@ -323,6 +325,34 @@ def competitionGraph_w_EGA(cate_name):
 		print("[read from file] # questions for Test (new questions old askers) : %d" % len(ques_set))
 	g = build_competition_graph(cate_name = cate_name,exclude_questions_set = ques_set, is_EGA = True, Asker2Question = True, Question2BestAnswerer = True, Asker2BestAnswerer = True, Asker2Answerer = False,saved_graph_name = "competition_graph_exclude_ques_existingAskers_w_EGA.gpickle")
 
+def build_Undirected_CQAGraph_w_Tag(cate_name):
+	print("building (undirected) CQA graph with Tags")
+	print("Edges: tag-question, question-asker, question-answerer")
+	g = nx.DiGraph()
+	
+	u_q_edges = asker_question_edges(os.path.join(cate_name,"QuestionId_AskerId.csv"),exclude_questions_set = None)
+	g.add_edges_from(u_q_edges)	
+
+	t_q_edges = tag_question_edges(os.path.join(cate_name,"question_tags.pkl"))
+	g.add_edges_from(t_q_edges)	
+
+	q_u_edges = question_answerer_edges(os.path.join(cate_name,"QuestionId_AnswererId.csv"))
+	g.add_edges_from(q_u_edges)
+
+	sprint(cate_name,"directed_competition_graph_statistics.log","Graph Statistics: # nodes: %d, # edges: %d, is directed acyclic graph: %s" % (g.number_of_nodes(),g.number_of_edges(),nx.is_directed_acyclic_graph(g)))
+	number_nodes = graph_nodes_analysis(g)
+	sprint(cate_name,"directed_competition_graph_statistics.log","In Graph: # question node, # user node, # answer node, # tag node: %s" % number_nodes)
+	number_edges = graph_edges_analysis(g)
+	sprint(cate_name,"directed_competition_graph_statistics.log","In Graph: # (user node, user node), # (question node, Answerer node), # (asker node, question node), # (tag nod, question node): %s" % number_edges)
+	h = g.to_undirected()
+	# number_nodes = graph_nodes_analysis(h)
+	# sprint(cate_name,"directed_competition_graph_statistics.log","In Graph: # question node, # user node, # answer node, # tag node: %s" % number_nodes)
+	# number_edges = graph_edges_analysis(h)
+	# sprint(cate_name,"directed_competition_graph_statistics.log","In Graph: # (user node, user node), # (question node, Answerer node), # (asker node, question node): %s" % number_edges)
+	# print h.edges()
+	saved_graph_name = "undirected_cqagraph_w_tag.pkl"
+	print saved_graph_name
+	nx.write_gpickle(h,os.path.join(cate_name,saved_graph_name))
 import argparse
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -332,4 +362,5 @@ if __name__ == "__main__":
 	
 	#CQARankGraph(args.input)
 	#standardCompetitionGraph(cate_name)
-	competitionGraph_w_EGA(cate_name)
+	# competitionGraph_w_EGA(cate_name)
+	build_Undirected_CQAGraph_w_Tag(cate_name)
