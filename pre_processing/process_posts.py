@@ -2,7 +2,6 @@ try:
 	import xml.etree.cElementTree as ET
 except ImportError:
 	import xml.etree.ElementTree as ET
-
 try:
 	import cPickle as pickle
 except ImportError:
@@ -61,7 +60,6 @@ def process_question_tags(output_dir,Questions):
 	with open(os.path.join(output_dir,"question_tags.pkl"),"wb") as f:
 		pickle.dump(question_tags,f)
 
-
 def process_question_text(dir_path,Questions):
 	questions_file = os.path.join(dir_path,"Questions.pkl")
 	questions_dict = {}
@@ -73,7 +71,6 @@ def process_question_text(dir_path,Questions):
 	with open(questions_file,"wb") as f:
 		pickle.dump(questions_dict,f)
 
-
 def process_answer_body(dir_path,Answers):
 	answers_file = os.path.join(dir_path,"Answers.pkl")
 	answers_body = dict(zip(Answers["AnswerId"],Answers["Body"]))
@@ -81,7 +78,6 @@ def process_answer_body(dir_path,Answers):
 	sprint(dir_path,"pystack_analysis.log","# answers with body: %d" % len(answers_body))
 	with open(answers_file,"wb") as f:
 		pickle.dump(answers_body,f)
-
 
 def questionid_answererid(cate_name):
 	questionid_answerid_file = os.path.join(cate_name,"AnswerId_QuestionId.csv")
@@ -95,18 +91,19 @@ def questionid_answererid(cate_name):
 	answer = []
 	answerer = []
 	score = []
+	creation_date = []
 
-	for q,a,s in zip(q_answer_df["QuestionId"],q_answer_df["AnswerId"],q_answer_df["Score"]):
+	for q,a,s,c_d in zip(q_answer_df["QuestionId"],q_answer_df["AnswerId"],q_answer_df["Score"],q_answer_df["CreationDate"]):
 		if a in a_a_dict:
 			ques.append(q)
 			answer.append(a)
 			answerer.append(a_a_dict[a])
 			score.append(s)
-	
-	df = pd.DataFrame({"QuestionId":ques,"AnswerId":answer,"AnswererId":answerer,"Score":score})
-	df.to_csv(os.path.join(cate_name,"QuestionId_AnswererId.csv"),index = True, columns = ["QuestionId","AnswerId","AnswererId","Score"])
-	sprint(cate_name,"pystack_analysis.log","# question-answer-answerer pairs: %d" % len(df))
+			creation_date.append(c_d)
 
+	df = pd.DataFrame({"QuestionId":ques,"AnswerId":answer,"AnswererId":answerer,"Score":score,"CreationDate":creation_date})
+	df.to_csv(os.path.join(cate_name,"QuestionId_AnswererId.csv"),index = True, columns = ["QuestionId","AnswerId","AnswererId","Score","CreationDate"])
+	sprint(cate_name,"pystack_analysis.log","# question-answer-answerer pairs: %d" % len(df))
 
 def questionid_bestanswererid(cate_name):
 	questionid_bestanswerid_file = os.path.join(cate_name,"QuestionId_AcceptedAnswerId.csv")
@@ -128,6 +125,37 @@ def questionid_bestanswererid(cate_name):
 	q_ber_df.to_csv(os.path.join(cate_name,"QuestionId_AcceptedAnswererId.csv"),index = True, columns = ["QuestionId","AcceptedAnswerId","AcceptedAnswererId"])
 	sprint(cate_name,"pystack_analysis.log","# question-bestAnswerer pairs: %d" % len(q_ber_df))
 
+def askerid_answererid(cate_name):
+	questionid_askerid_file = os.path.join(cate_name,"QuestionId_AskerId.csv")
+	q_asker_df = pd.read_csv(questionid_askerid_file)
+	q_asker_dict = {}
+
+	for q,a,q_c_d in zip(q_asker_df["QuestionId"],q_asker_df["AskerId"],q_asker_df["CreationDate"]):
+		q_asker_dict[q] = [a,q_c_d]
+
+	q_AnswererId_file = os.path.join(cate_name,"QuestionId_AnswererId.csv")
+	q_answerer_df = pd.read_csv(q_AnswererId_file)
+
+	ques = []
+	asker = []
+	answerer = []
+	score = []
+	q_creation_date = []
+	answer_creation_date = []
+
+	for q,a,s,c_d in zip(q_answerer_df["QuestionId"],q_answerer_df["AnswererId"],q_answerer_df["Score"],q_answerer_df["CreationDate"]):
+		if q in q_asker_dict:
+			ques.append(q)
+			asker.append(q_asker_dict[q][0])
+			answerer.append(a)
+			score.append(s)
+			q_creation_date.append(q_asker_dict[q][1])
+			answer_creation_date.append(c_d)
+
+	df = pd.DataFrame({"QuestionId":ques,"AskerId":asker,"AnswererId":answerer,"Score":score,"QuestionCreationDate":q_creation_date,"AnswerCreationDate":answer_creation_date})
+	df.to_csv(os.path.join(cate_name,"AskerId_AnswererId.csv"),index = True, columns = ["QuestionId","AskerId","AnswererId","Score","QuestionCreationDate","AnswerCreationDate"])
+	sprint(cate_name,"pystack_analysis.log","# question-asker-answerer pairs: %d" % len(df))
+	
 def process_common_attributes(Posts,elem):
 	# common attributes between questions and answers
 	try:
@@ -202,19 +230,18 @@ def posts_processing(file_name):
 			except Exception as e:
 				pass
 				#print("Exception: %s" % e)
-	
-	#dir_path = os.path.dirname(file_name)
+
 	dir_path = os.path.dirname(os.path.abspath(file_name))
 	
 	questions_file = os.path.join(dir_path,"Questions.pkl")
 
-	
 	process_QuestionId_AskerId(dir_path,Questions)
 	process_QuestionId_AcceptedAnswerId(dir_path,Questions)
 	process_AnswerId_QuestionId(dir_path,Answers)
 	process_AnswerId_AnswererId(dir_path,Answers)
 	questionid_answererid(dir_path)
 	questionid_bestanswererid(dir_path)
+	askerid_answererid(dir_path)
 	process_question_tags(dir_path,Questions)
 	process_answer_body(dir_path,Answers)
 	process_question_text(dir_path,Questions)
@@ -224,7 +251,7 @@ if __name__ == "__main__":
 	process */Posts.xml
 	'''
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-i","--input",default= "dataset/ai/Posts.xml", help = "input: */Posts.xml, output: */Posts.csv")
+	parser.add_argument("-i","--input",default= "../dataset/ai/Posts.xml", help = "input: */Posts.xml, output: *.csv")
 	args = parser.parse_args()
 	input_file = args.input
 	print("processing input file %s " % input_file)

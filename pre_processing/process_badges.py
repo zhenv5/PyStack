@@ -2,7 +2,6 @@ try:
 	import xml.etree.cElementTree as ET
 except ImportError:
 	import xml.etree.ElementTree as ET
-
 import os.path
 import pandas as pd
 import argparse
@@ -38,7 +37,6 @@ def badges_processing(file_name):
 	df.to_csv(output_file,index = False,columns = ["UserId","BadgeName","BadgeDate"])
 	sprint(dir_path,"pystack_analysis.log","# users having badges: %d" % len(df))
 	
-
 if __name__ == "__main__":
 	'''
 	process */Badges.xml

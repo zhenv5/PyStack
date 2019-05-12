@@ -15,7 +15,8 @@ This tooklit provides several useful Python scripts for processing [stack exchan
 
 * download your interested Stack Exchange site data (*.stackexchange.com.7z) from [stack exchange data dump](https://archive.org/details/stackexchange), such as ```ai.stackexchange.com.7z```
 * unzip ```ai.stackexchange.com.7z``` to directory: ```dataset/ai```
-* execute: ```python pystack.py --input dataset/ai/ --task all```
+* ```cd pre_precessing```
+* execute: ```python pystack.py --input ../dataset/ai/ --task all```
 
 #### Parameters of ```pystack.py```
 
@@ -33,13 +34,13 @@ This tooklit provides several useful Python scripts for processing [stack exchan
 #### Usage
 
 ```
-python process_posts.py --input dataset/ai/Posts.xml
+python process_posts.py --input ../dataset/ai/Posts.xml
 ```
 
 OR
 
 ```
-python pystack.py --input dataset/ai/ --task Posts
+python pystack.py --input ../dataset/ai/ --task Posts
 ```
 
 #### Output
@@ -47,22 +48,25 @@ python pystack.py --input dataset/ai/ --task Posts
 * QuestionId_AskerId.csv
 * QuestionId_AnswererId.csv
 * QuestionId_AcceptedAnswererId.csv
-* ...
+* AnswerId_QuestionId.csv
+* AnswerId_AnswererId.csv
+* AskerId_AnswererId.csv
 * question_tags.pkl: A dict pickle file, of which key is question id, and its value is a list of tags
-
+* Questions.pkl: A dict pickle file, of which key is question id, and its value is a list of [question title, question body]
+* Answers.pkl: A dict pickle file, of which key is answer id, and its value is corresponding body
 
 ### Process PostLinks.xml
 
 #### Usage 
 
 ```
-python process_postlinks.py --input dataset/ai/PostLinks.xml
+python process_postlinks.py --input ../dataset/ai/PostLinks.xml
 ```
 
 OR
 
 ```
-python pystack.py --input dataset/ai/ --task PostLinks
+python pystack.py --input ../dataset/ai/ --task PostLinks
 ```
 
 #### Output
@@ -76,13 +80,13 @@ python pystack.py --input dataset/ai/ --task PostLinks
 #### Usage
 
 ```
-python process_votes.py --input dataset/ai/Votes.xml
+python process_votes.py --input ../dataset/ai/Votes.xml
 ```
 
 OR
 
 ```
-python pystack.py --input dataset/ai/ --task Votes
+python pystack.py --input ../dataset/ai/ --task Votes
 ```
 
 
@@ -95,13 +99,13 @@ python pystack.py --input dataset/ai/ --task Votes
 #### Usage
 
 ```
-python process_badges.py --input dataset/ai/Badges.xml
+python process_badges.py --input ../dataset/ai/Badges.xml
 ```
 
 OR
 
 ```
-python pystack.py --input dataset/ai/ --task Badges
+python pystack.py --input ../dataset/ai/ --task Badges
 ```
 
 #### Output
@@ -113,13 +117,13 @@ python pystack.py --input dataset/ai/ --task Badges
 #### Usage
 
 ```
-python process_comments.py --input dataset/ai/Comments.xml
+python process_comments.py --input ../dataset/ai/Comments.xml
 ```
 
 OR
 
 ```
-python pystack.py --input dataset/ai/ --task Comments
+python pystack.py --input ../dataset/ai/ --task Comments
 ```
 
 #### Output
@@ -132,9 +136,8 @@ python pystack.py --input dataset/ai/ --task Comments
 ### How to unzip a *.7z file
 
 * Install ```p7zip``` if not already installed: ```sudo apt-get install p7zip```
-
 * To install the command line utility ```sudp atp-get install p7zip-full```
-
+* Or [Install p7zip on Mac OSX](http://macappstore.org/p7zip/)
 * execute command to extract a *.7z file: ```7za x *.7z```
 
 ## Discuss

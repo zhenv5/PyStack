@@ -41,8 +41,8 @@ def best_answerers(dir_name):
 import argparse
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-i","--input",default= "../dataset/ai", help = "category name")
+	parser.add_argument("-i","--input",default= "../dataset/android", help = "category name")
 	args = parser.parse_args()
-	#answers_per_question(args.input)
-	#questions_per_asker(args.input)
+	answers_per_question(args.input)
+	questions_per_asker(args.input)
 	best_answerers(args.input)

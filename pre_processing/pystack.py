@@ -19,10 +19,9 @@ def preprocessing_main(cate_name,task_name):
 		from process_comments import comments_processing
 		comments_processing(os.path.join(cate_name,"Comments.xml"))
 
-
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-i","--input",default= "dataset/ai", help = "input category name")
+	parser.add_argument("-i","--input",default= "../dataset/ai", help = "input category name")
 	parser.add_argument("-t","--task",default= "all", help = "task names: Posts, PostLinks, Votes, Badges, Comments, and All")
 	args = parser.parse_args()
 	preprocessing_main(args.input,args.task)

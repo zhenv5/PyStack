@@ -2,7 +2,6 @@ try:
 	import xml.etree.cElementTree as ET
 except ImportError:
 	import xml.etree.ElementTree as ET
-
 import os.path
 import pandas as pd
 import argparse
@@ -46,7 +45,7 @@ if __name__ == "__main__":
 	process */Votes.xml
 	'''
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-i","--input",default= "dataset/ai/Votes.xml", help = "input: */Votes.xml, output: */QuestionId_Bounty.csv")
+	parser.add_argument("-i","--input",default= "../dataset/ai/Votes.xml", help = "input: */Votes.xml, output: */QuestionId_Bounty.csv")
 	args = parser.parse_args()
 	input_file = args.input
 	print("input file %s " % input_file)
