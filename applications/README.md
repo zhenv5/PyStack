@@ -1,3 +1,4 @@
+
 ### Applications
 
 #### Build Temporal CQA Graph
@@ -14,3 +15,18 @@ Output:
 * ```AskerIndex_AnswererIndex_2018-01-01_interval_by_month_n.csv```: newly added edges between (```initial_date``` + ```interval_by_days``` X (n)) and (```initial_date``` + ```interval_by_days``` X (n+1))
 * Nodes which are not in the initial graph are not included in the updated csv (n >= 0)
 * ```AskerIndex_AnswererIndex_....csv``` format: ```AskerIndex, AnswererIndex``` per row. Node index starts from 0
+
+#### Extract Newly Posted Questions for Test
+
+Newly posted questions: 
+
+* questions asked by new askers
+* questions asked by existing askers
+
+Regarding the strategy of selecting test cold questions, please check our paper [ColdRoute: Effective Routing of Cold Questions in Stack Exchange Sites](https://arxiv.org/abs/1807.00462)
+
+Usage:
+
+```
+python extract_test_cold_questions.py --input ../dataset/bitcoin/
+```
