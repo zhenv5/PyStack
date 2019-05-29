@@ -13,7 +13,9 @@ def answers_per_question(dir_name):
 			q_dict[q] = [a]
 	print("# question-answer pairs: %d" % len(df))
 	print("# questions: %d" % len(q_dict))
-	print("# avg answers per question: %0.4f" % (len(df)*1.0/len(q_dict)))	
+	print("# avg answers per question: %0.4f" % (len(df)*1.0/len(q_dict)))
+	ques_with_one_answer = len(list(filter(lambda x: len(x[1]) == 1, q_dict.iteritems())))
+	print("# questions with only one answer: %d, percentage: %0.4f" % (ques_with_one_answer, ques_with_one_answer * 1.0 / len(q_dict)))
 
 
 def questions_per_asker(dir_name):
